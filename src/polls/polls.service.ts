@@ -151,6 +151,17 @@ export class PollsService {
   async getResults(id: string, userId: string): Promise<any> {
     const poll = await this.findOne(id, userId);
 
+    const userObjectId = new Types.ObjectId(userId);
+    const userHasVoted = poll.options.some((option) =>
+      option.votedBy.some((voterId) => voterId.equals(userObjectId))
+    );
+
+    const isCreator = poll.createdBy._id.equals(userObjectId);
+
+    if (!poll.isActive && !userHasVoted && !isCreator) {
+      throw new ForbiddenException('You can only view results of polls you participated in');
+    }
+
     const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0);
 
     const results = poll.options.map((option) => ({
@@ -167,6 +178,7 @@ export class PollsService {
       isActive: poll.isActive,
       expiresAt: poll.expiresAt,
       results,
+      userHasVoted,
     };
   }
 }
