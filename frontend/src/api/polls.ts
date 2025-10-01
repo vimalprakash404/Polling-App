@@ -93,4 +93,9 @@ export const pollsApi = {
     const response = await axios.get(`/polls/${id}/results`);
     return response.data;
   },
+
+  updateAllowedUsers: async (id: string, allowedUsers: string[]): Promise<Poll> => {
+    const response = await axios.patch(`/polls/${id}/allowed-users`, { allowedUsers });
+    return response.data;
+  },
 };

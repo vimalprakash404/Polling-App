@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { pollsApi, type Poll } from '../api/polls';
 import CreatePollModal from '../components/CreatePollModal';
 import EditPollModal from '../components/EditPollModal';
+import ManageAllowedUsersModal from '../components/ManageAllowedUsersModal';
 import PollCard from '../components/PollCard';
 import { connectSocket, disconnectSocket } from '../services/socket';
 
@@ -11,6 +12,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPoll, setEditingPoll] = useState<Poll | null>(null);
+  const [managingUsersPoll, setManagingUsersPoll] = useState<Poll | null>(null);
 
   const fetchPolls = async () => {
     try {
@@ -69,6 +71,10 @@ export default function AdminDashboard() {
     setEditingPoll(poll);
   };
 
+  const handleManageUsers = (poll: Poll) => {
+    setManagingUsersPoll(poll);
+  };
+
   const activePolls = polls.filter((poll) => poll.isActive);
   const expiredPolls = polls.filter((poll) => !poll.isActive);
 
@@ -115,6 +121,7 @@ export default function AdminDashboard() {
                     poll={poll}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onManageUsers={handleManageUsers}
                     isAdmin
                   />
                 ))}
@@ -137,6 +144,7 @@ export default function AdminDashboard() {
                     key={poll._id}
                     poll={poll}
                     onDelete={handleDelete}
+                    onManageUsers={handleManageUsers}
                     isAdmin
                   />
                 ))}
@@ -162,6 +170,17 @@ export default function AdminDashboard() {
           onClose={() => setEditingPoll(null)}
           onSuccess={() => {
             setEditingPoll(null);
+            fetchPolls();
+          }}
+        />
+      )}
+
+      {managingUsersPoll && (
+        <ManageAllowedUsersModal
+          poll={managingUsersPoll}
+          onClose={() => setManagingUsersPoll(null)}
+          onSuccess={() => {
+            setManagingUsersPoll(null);
             fetchPolls();
           }}
         />

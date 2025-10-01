@@ -61,4 +61,15 @@ export class PollsController {
   vote(@Param('id') id: string, @Body() voteDto: VoteDto, @CurrentUser() user: any) {
     return this.pollsService.vote(id, voteDto, user.userId);
   }
+
+  @Patch(':id/allowed-users')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  updateAllowedUsers(
+    @Param('id') id: string,
+    @Body() body: { allowedUsers: string[] },
+    @CurrentUser() user: any
+  ) {
+    return this.pollsService.updateAllowedUsers(id, body.allowedUsers, user.userId);
+  }
 }

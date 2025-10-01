@@ -198,4 +198,21 @@ export class PollsService {
       userHasVoted,
     };
   }
+
+  async updateAllowedUsers(id: string, allowedUserIds: string[], userId: string): Promise<Poll> {
+    const poll = await this.pollModel.findById(id).exec();
+
+    if (!poll) {
+      throw new NotFoundException('Poll not found');
+    }
+
+    if (!poll.createdBy.equals(new Types.ObjectId(userId))) {
+      throw new ForbiddenException('You can only update your own polls');
+    }
+
+    poll.allowedUsers = allowedUserIds.map((uid) => new Types.ObjectId(uid));
+    const updatedPoll = await poll.save();
+    this.pollsGateway.emitPollUpdated(updatedPoll);
+    return updatedPoll;
+  }
 }

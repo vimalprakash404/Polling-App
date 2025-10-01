@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { pollsApi } from '../api/polls';
+import axios from '../api/axios';
 
 interface CreatePollModalProps {
   onClose: () => void;
@@ -14,6 +15,25 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [users, setUsers] = useState<Array<{ _id: string; username: string; email: string }>>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const response = await axios.get('/users');
+        setUsers(response.data);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleAddOption = () => {
     setOptions([...options, '']);
@@ -55,6 +75,7 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
         options: validOptions,
         isPublic,
         durationMinutes,
+        allowedUsers: !isPublic && selectedUsers.length > 0 ? selectedUsers : undefined,
       });
       onSuccess();
     } catch (err: any) {
@@ -180,6 +201,46 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
               <span>Make this poll public</span>
             </label>
           </div>
+
+          {!isPublic && (
+            <div className="mb-4">
+              <label htmlFor="allowedUsers" className="block text-sm font-medium mb-1">
+                Allowed Users
+              </label>
+              {loadingUsers ? (
+                <p className="text-sm text-gray-500">Loading users...</p>
+              ) : (
+                <div className="border border-gray-300 rounded p-3 max-h-48 overflow-y-auto">
+                  {users.length === 0 ? (
+                    <p className="text-sm text-gray-500">No users available</p>
+                  ) : (
+                    users.map((user) => (
+                      <label key={user._id} className="flex items-center space-x-2 mb-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(user._id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedUsers([...selectedUsers, user._id]);
+                            } else {
+                              setSelectedUsers(selectedUsers.filter((id) => id !== user._id));
+                            }
+                          }}
+                          className="form-checkbox h-4 w-4 text-blue-500"
+                        />
+                        <span className="text-sm">
+                          {user.username} ({user.email})
+                        </span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+              <small className="text-gray-500">
+                Select users who can view and vote on this private poll
+              </small>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-2">
             <button

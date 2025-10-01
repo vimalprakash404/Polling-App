@@ -9,9 +9,10 @@ interface PollCardProps {
   onDelete?: (id: string) => void;
   onVoteSuccess?: () => void;
   isAdmin?: boolean;
+  onManageUsers?: (poll: Poll) => void;
 }
 
-export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmin }: PollCardProps) {
+export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmin, onManageUsers }: PollCardProps) {
   const { user } = useAuth();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [voting, setVoting] = useState(false);
@@ -152,6 +153,14 @@ export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmi
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
           >
             Edit
+          </button>
+        )}
+        {isAdmin && onManageUsers && !poll.isPublic && (
+          <button
+            onClick={() => onManageUsers(poll)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm"
+          >
+            Manage Users
           </button>
         )}
         {isAdmin && onDelete && (
