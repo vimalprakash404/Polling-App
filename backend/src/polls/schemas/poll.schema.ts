@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
+@Schema() // Add @Schema() to make PollOption a proper subdocument schema
 export class PollOption {
   @Prop({ required: true })
   text: string;
@@ -12,6 +13,8 @@ export class PollOption {
   votedBy: Types.ObjectId[];
 }
 
+const PollOptionSchema = SchemaFactory.createForClass(PollOption);
+
 @Schema({ timestamps: true })
 export class Poll extends Document {
   @Prop({ required: true })
@@ -20,7 +23,7 @@ export class Poll extends Document {
   @Prop()
   description: string;
 
-  @Prop({ type: [PollOption], required: true })
+  @Prop({ type: [PollOptionSchema], required: true }) // Use PollOptionSchema here
   options: PollOption[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })

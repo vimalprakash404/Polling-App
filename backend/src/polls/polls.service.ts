@@ -145,7 +145,14 @@ export class PollsService {
     poll.options[voteDto.optionIndex].votes += 1;
     poll.options[voteDto.optionIndex].votedBy.push(userObjectId);
 
-    return poll.save();
+    try {
+      const savedPoll = await poll.save();
+      console.log('Poll saved successfully:', savedPoll);
+      return savedPoll;
+    } catch (error) {
+      console.error('Error saving poll:', error);
+      throw new BadRequestException('Failed to save poll');
+    }
   }
 
   async getResults(id: string, userId: string): Promise<any> {
