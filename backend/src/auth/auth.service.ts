@@ -23,11 +23,10 @@ export class AuthService {
       throw new ConflictException('Username already taken');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    
 
     const user = await this.usersService.create({
-      ...registerDto,
-      password: hashedPassword,
+      ...registerDto
     });
 
     const payload = { sub: user._id, email: user.email, role: user.role };
@@ -47,12 +46,14 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials 1');
     }
+
+    console.log('Login user:', loginDto.password); // Debugging
 
     const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials password');
     }
 
     const payload = { sub: user._id, email: user.email, role: user.role };
