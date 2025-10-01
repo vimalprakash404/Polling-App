@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { pollsApi, type Poll } from '../api/polls';
 import PollCard from '../components/PollCard';
+import { connectSocket, disconnectSocket } from '../services/socket';
 
 export default function UserPolls() {
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -23,6 +24,31 @@ export default function UserPolls() {
 
   useEffect(() => {
     fetchPolls();
+
+    const socket = connectSocket();
+
+    socket.on('pollCreated', (poll: Poll) => {
+      console.log('New poll created:', poll);
+      setPolls((prevPolls) => [poll, ...prevPolls]);
+    });
+
+    socket.on('pollUpdated', (updatedPoll: Poll) => {
+      console.log('Poll updated:', updatedPoll);
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) =>
+          poll._id === updatedPoll._id ? updatedPoll : poll
+        )
+      );
+    });
+
+    socket.on('pollDeleted', (pollId: string) => {
+      console.log('Poll deleted:', pollId);
+      setPolls((prevPolls) => prevPolls.filter((poll) => poll._id !== pollId));
+    });
+
+    return () => {
+      disconnectSocket();
+    };
   }, []);
 
   const filteredPolls = polls.filter((poll) => {
@@ -32,24 +58,36 @@ export default function UserPolls() {
   });
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Available Polls</h1>
-        <div className="filter-buttons">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">Available Polls</h1>
+        <div className="flex gap-3">
           <button
-            className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+            className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              filter === 'all'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50'
+                : 'bg-white text-slate-700 border border-slate-300 hover:border-blue-500'
+            }`}
             onClick={() => setFilter('all')}
           >
             All ({polls.length})
           </button>
           <button
-            className={`btn ${filter === 'active' ? 'btn-primary' : 'btn-secondary'}`}
+            className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              filter === 'active'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50'
+                : 'bg-white text-slate-700 border border-slate-300 hover:border-blue-500'
+            }`}
             onClick={() => setFilter('active')}
           >
             Active ({polls.filter((p) => p.isActive).length})
           </button>
           <button
-            className={`btn ${filter === 'expired' ? 'btn-primary' : 'btn-secondary'}`}
+            className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              filter === 'expired'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50'
+                : 'bg-white text-slate-700 border border-slate-300 hover:border-blue-500'
+            }`}
             onClick={() => setFilter('expired')}
           >
             Expired ({polls.filter((p) => !p.isActive).length})
@@ -57,14 +95,25 @@ export default function UserPolls() {
         </div>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
 
       {loading ? (
-        <div className="loading">Loading polls...</div>
+        <div className="flex justify-center items-center py-12">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-slate-600 font-medium">Loading polls...</p>
+          </div>
+        </div>
       ) : filteredPolls.length === 0 ? (
-        <p className="empty-state">No polls available.</p>
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <p className="text-slate-500 text-lg">No polls available.</p>
+        </div>
       ) : (
-        <div className="polls-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPolls.map((poll) => (
             <PollCard key={poll._id} poll={poll} onVoteSuccess={fetchPolls} />
           ))}

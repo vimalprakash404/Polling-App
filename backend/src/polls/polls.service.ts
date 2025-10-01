@@ -5,10 +5,14 @@ import { Poll } from './schemas/poll.schema';
 import { CreatePollDto } from './dto/create-poll.dto';
 import { UpdatePollDto } from './dto/update-poll.dto';
 import { VoteDto } from './dto/vote.dto';
+import { PollsGateway } from './polls.gateway';
 
 @Injectable()
 export class PollsService {
-  constructor(@InjectModel(Poll.name) private pollModel: Model<Poll>) {}
+  constructor(
+    @InjectModel(Poll.name) private pollModel: Model<Poll>,
+    private pollsGateway: PollsGateway,
+  ) {}
 
   async create(createPollDto: CreatePollDto, userId: string): Promise<Poll> {
     const expiresAt = new Date();
@@ -28,7 +32,9 @@ export class PollsService {
       allowedUsers: createPollDto.allowedUsers?.map((id) => new Types.ObjectId(id)) || [],
     });
 
-    return poll.save();
+    const savedPoll = await poll.save();
+    this.pollsGateway.emitPollCreated(savedPoll);
+    return savedPoll;
   }
 
   async findAll(userId: string): Promise<Poll[]> {
@@ -92,7 +98,9 @@ export class PollsService {
     }
 
     Object.assign(poll, updatePollDto);
-    return poll.save();
+    const updatedPoll = await poll.save();
+    this.pollsGateway.emitPollUpdated(updatedPoll);
+    return updatedPoll;
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -107,6 +115,7 @@ export class PollsService {
     }
 
     await this.pollModel.findByIdAndDelete(id).exec();
+    this.pollsGateway.emitPollDeleted(id);
   }
 
   async vote(id: string, voteDto: VoteDto, userId: string): Promise<Poll> {
@@ -148,6 +157,7 @@ export class PollsService {
     try {
       const savedPoll = await poll.save();
       console.log('Poll saved successfully:', savedPoll);
+      this.pollsGateway.emitPollUpdated(savedPoll);
       return savedPoll;
     } catch (error) {
       console.error('Error saving poll:', error);

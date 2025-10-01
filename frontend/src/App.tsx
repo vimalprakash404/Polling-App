@@ -6,17 +6,23 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import UserPolls from './pages/UserPolls';
-import './App.css';
 
 function AppRoutes() {
   const { user, isAdmin, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-slate-100">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-slate-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100">
       <Navbar />
       <Routes>
         <Route
@@ -36,7 +42,7 @@ function AppRoutes() {
           }
         />
       </Routes>
-    </>
+    </div>
   );
 }
 
