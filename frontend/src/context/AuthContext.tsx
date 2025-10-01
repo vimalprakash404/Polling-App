@@ -38,10 +38,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginData) => {
     const response = await authApi.login(data);
-    setToken(response.access_token);
-    setUser(response.user);
     localStorage.setItem('token', response.access_token);
     localStorage.setItem('user', JSON.stringify(response.user));
+    setToken(response.access_token);
+    setUser(response.user);
   };
 
   const register = async (data: RegisterData) => {

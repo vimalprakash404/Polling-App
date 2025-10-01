@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,8 +7,14 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && !error) {
+      navigate('/');
+    }
+  }, [user, navigate, error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +23,8 @@ export default function Login() {
 
     try {
       await login({ email, password });
-      navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
-    } finally {
       setLoading(false);
     }
   };
