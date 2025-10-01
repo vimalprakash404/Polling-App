@@ -23,6 +23,7 @@ export default function Login() {
 
     try {
       await login({ email, password });
+      setLoading(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
       setLoading(false);
