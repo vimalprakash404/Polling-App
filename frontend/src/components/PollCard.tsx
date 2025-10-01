@@ -82,6 +82,11 @@ export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmi
         <p className="text-slate-700">
           <span className="font-semibold">Created by:</span> {poll.createdBy.username}
         </p>
+        {!poll.isPublic && (
+          <p className="text-slate-700">
+            <span className="font-semibold">Access:</span> Private poll ({poll.allowedUsers.length} allowed user{poll.allowedUsers.length !== 1 ? 's' : ''})
+          </p>
+        )}
         {poll.isActive ? (
           <p className="text-slate-700">
             <span className="font-semibold">Time left:</span>{' '}

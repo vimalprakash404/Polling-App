@@ -20,15 +20,19 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [error, setError] = useState('');
+  const [usersError, setUsersError] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoadingUsers(true);
+      setUsersError('');
       try {
         const response = await axios.get('/users');
         setUsers(response.data);
-      } catch (err) {
-        setError('Failed to load users');
+      } catch (err: any) {
+        const errorMsg = err.response?.data?.message || 'Failed to load users';
+        setUsersError(errorMsg);
+        console.error('Failed to fetch users:', err);
       } finally {
         setLoadingUsers(false);
       }
@@ -94,12 +98,19 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
             <label className="block text-sm font-medium mb-2">
               Select Users
             </label>
+            {usersError && (
+              <div className="bg-yellow-100 text-yellow-800 p-2 rounded mb-2 text-sm">
+                {usersError}
+              </div>
+            )}
             {loadingUsers ? (
               <p className="text-sm text-gray-500">Loading users...</p>
             ) : (
               <div className="border border-gray-300 rounded p-3 max-h-64 overflow-y-auto">
                 {users.length === 0 ? (
-                  <p className="text-sm text-gray-500">No users available</p>
+                  <p className="text-sm text-gray-500">
+                    {usersError ? 'Unable to load users' : 'No users available. Register users first to add them to private polls.'}
+                  </p>
                 ) : (
                   users.map((user) => (
                     <label key={user._id} className="flex items-center space-x-2 mb-2">
@@ -124,7 +135,9 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
               </div>
             )}
             <small className="text-gray-500 mt-1 block">
-              {selectedUsers.length} user(s) selected
+              {selectedUsers.length > 0
+                ? `${selectedUsers.length} user(s) selected. They will be able to view and vote on this private poll.`
+                : 'Select users who can view and vote on this private poll'}
             </small>
           </div>
 
