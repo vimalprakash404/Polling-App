@@ -56,6 +56,18 @@ export class PollsService {
   }
 
   async findMyPolls(userId: string): Promise<Poll[]> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      return [];
+    }
+
+    if (user.role === Role.ADMIN) {
+      return this.pollModel
+        .find()
+        .populate('createdBy', 'username email')
+        .exec();
+    }
+
     return this.pollModel
       .find({ createdBy: new Types.ObjectId(userId) })
       .populate('createdBy', 'username email')
@@ -216,9 +228,17 @@ export class PollsService {
       throw new ForbiddenException('Only admins can update polls');
     }
 
+    const previousAllowedUsers = poll.allowedUsers.map((uid) => uid.toString());
+    const newAllowedUsers = allowedUserIds;
+
+    const addedUsers = newAllowedUsers.filter((uid) => !previousAllowedUsers.includes(uid));
+    const removedUsers = previousAllowedUsers.filter((uid) => !newAllowedUsers.includes(uid));
+
     poll.allowedUsers = allowedUserIds.map((uid) => new Types.ObjectId(uid));
     const updatedPoll = await poll.save();
-    this.pollsGateway.emitPollUpdated(updatedPoll);
+
+    this.pollsGateway.emitAllowedUsersUpdated(updatedPoll, addedUsers, removedUsers);
+
     return updatedPoll;
   }
 }

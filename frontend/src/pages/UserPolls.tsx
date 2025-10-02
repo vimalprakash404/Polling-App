@@ -3,6 +3,7 @@ import { pollsApi, type Poll } from '../api/polls';
 import PollCard from '../components/PollCard';
 import { connectSocket, disconnectSocket } from '../services/socket';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function UserPolls() {
   const { user } = useAuth();
@@ -46,6 +47,18 @@ export default function UserPolls() {
     socket.on('pollDeleted', (pollId: string) => {
       console.log('Poll deleted:', pollId);
       setPolls((prevPolls) => prevPolls.filter((poll) => poll._id !== pollId));
+    });
+
+    socket.on('pollAccessGranted', (poll: Poll) => {
+      console.log('Poll access granted:', poll);
+      setPolls((prevPolls) => [poll, ...prevPolls]);
+      toast.info(`You now have access to the poll: "${poll.title}"`);
+    });
+
+    socket.on('pollAccessRevoked', (data: { pollId: string }) => {
+      console.log('Poll access revoked:', data.pollId);
+      setPolls((prevPolls) => prevPolls.filter((poll) => poll._id !== data.pollId));
+      toast.warning('Your access to a poll has been revoked');
     });
 
     return () => {

@@ -85,4 +85,20 @@ export class PollsGateway
       this.server.emit('pollDeleted', pollId);
     }
   }
+
+  emitAllowedUsersUpdated(poll: any, addedUsers: string[], removedUsers: string[]) {
+    if (addedUsers.length > 0) {
+      addedUsers.forEach((userId: string) => {
+        this.server.to(`user:${userId}`).emit('pollAccessGranted', poll);
+      });
+    }
+
+    if (removedUsers.length > 0) {
+      removedUsers.forEach((userId: string) => {
+        this.server.to(`user:${userId}`).emit('pollAccessRevoked', { pollId: poll._id });
+      });
+    }
+
+    this.emitPollUpdated(poll);
+  }
 }
