@@ -25,7 +25,7 @@ async function bootstrap() {
 
   app.useStaticAssets(frontendPath);
 
-  app.use(/^(?!\/(auth|users|polls|socket\.io)).*/, (req, res) => {
+ app.use(/^(?!\/(auth|users|polls|socket\.io)).*/, (req, res) => {
   res.sendFile(join(frontendPath, 'index.html'));
 });
 
