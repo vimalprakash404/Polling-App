@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { pollsApi } from '../api/polls';
 import axios from '../api/axios';
 
@@ -81,9 +82,12 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
         durationMinutes,
         allowedUsers: !isPublic && selectedUsers.length > 0 ? selectedUsers : undefined,
       });
+      toast.success('Poll created successfully!');
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create poll');
+      const errorMsg = err.response?.data?.message || 'Failed to create poll';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

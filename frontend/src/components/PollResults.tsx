@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { pollsApi, type PollResults as PollResultsType } from '../api/polls';
 
 interface PollResultsProps {
@@ -18,7 +19,9 @@ export default function PollResults({ pollId }: PollResultsProps) {
         setResults(data);
         setError('');
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch results');
+        const errorMsg = err.response?.data?.message || 'Failed to fetch results';
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }

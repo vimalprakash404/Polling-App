@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { type Poll, pollsApi } from '../api/polls';
 import { useAuth } from '../context/AuthContext';
 import PollResults from './PollResults';
@@ -30,7 +31,7 @@ export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmi
 
   const handleVote = async () => {
     if (selectedOption === null) {
-      setError('Please select an option');
+      toast.error('Please select an option');
       return;
     }
 
@@ -39,10 +40,12 @@ export default function PollCard({ poll, onEdit, onDelete, onVoteSuccess, isAdmi
 
     try {
       await pollsApi.vote(poll._id, { optionIndex: selectedOption });
-      alert('Vote submitted successfully!');
+      toast.success('Vote submitted successfully!');
       if (onVoteSuccess) onVoteSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to submit vote');
+      const errorMsg = err.response?.data?.message || 'Failed to submit vote';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setVoting(false);
     }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { pollsApi, type Poll } from '../api/polls';
 
 interface EditPollModalProps {
@@ -23,9 +24,12 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
         title,
         description: description || undefined,
       });
+      toast.success('Poll updated successfully!');
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update poll');
+      const errorMsg = err.response?.data?.message || 'Failed to update poll';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

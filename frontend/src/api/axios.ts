@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const API_URL = 'http://localhost:3000';
 
@@ -18,6 +19,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
+    toast.error('Request failed. Please try again.');
     return Promise.reject(error);
   }
 );
@@ -28,7 +30,12 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      toast.error('Session expired. Please login again.');
       window.location.href = '/login';
+    } else if (error.response?.status === 500) {
+      toast.error('Server error. Please try again later.');
+    } else if (!error.response) {
+      toast.error('Network error. Please check your connection.');
     }
     return Promise.reject(error);
   }

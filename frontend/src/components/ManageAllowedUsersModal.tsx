@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import axios from '../api/axios';
 import { type Poll } from '../api/polls';
 
@@ -50,9 +51,12 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
       await axios.patch(`/polls/${poll._id}/allowed-users`, {
         allowedUsers: selectedUsers,
       });
+      toast.success('Allowed users updated successfully!');
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update allowed users');
+      const errorMsg = err.response?.data?.message || 'Failed to update allowed users';
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

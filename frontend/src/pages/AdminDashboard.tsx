@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { pollsApi, type Poll } from '../api/polls';
 import CreatePollModal from '../components/CreatePollModal';
 import EditPollModal from '../components/EditPollModal';
@@ -64,8 +65,9 @@ export default function AdminDashboard() {
     try {
       await pollsApi.delete(id);
       setPolls(polls.filter((poll) => poll._id !== id));
+      toast.success('Poll deleted successfully');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete poll');
+      toast.error(err.response?.data?.message || 'Failed to delete poll');
     }
   };
 

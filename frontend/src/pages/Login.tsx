@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,9 +24,12 @@ export default function Login() {
 
     try {
       await login({ email, password });
+      toast.success('Login successful!');
       setLoading(false);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      const errorMsg = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setLoading(false);
     }
   };
