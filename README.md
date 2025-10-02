@@ -177,34 +177,7 @@ Deploy backend and frontend together as one service:
 
 5. The backend serves the frontend automatically from the built files
 
-#### Render Deployment Commands Summary
 
-```bash
-# For separate deployments:
-
-# Backend build command:
-npm install && npm run build
-
-# Backend start command:
-npm run start:prod
-
-# Frontend build command:
-npm install && npm run build
-
-# Full stack build command (single service):
-cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build
-
-# Full stack start command (single service):
-cd backend && npm run start:prod
-```
-
-#### Important Notes for Render
-
-- Free tier services may spin down after inactivity (takes ~30s to spin up)
-- Ensure MongoDB Atlas allows connections from all IPs (0.0.0.0/0)
-- Environment variables are set in Render dashboard, not in code
-- Backend URL must be HTTPS on Render
-- Update frontend to use the Render backend URL
 
 ### Local Deployment
 
