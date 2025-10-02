@@ -192,8 +192,8 @@ export class PollsService {
 
     const isCreator = poll.createdBy._id.equals(userObjectId);
 
-    if (!poll.isActive && !userHasVoted && !isCreator) {
-      throw new ForbiddenException('You can only view results of polls you participated in');
+    if (!poll.isActive && !poll.isPublic && !isCreator) {
+      throw new ForbiddenException('You can only view results of public polls or polls you created');
     }
 
     const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0);
