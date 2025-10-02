@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_URL = '';
+const API_URL = 'https://polling-app-ae59.onrender.com';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
