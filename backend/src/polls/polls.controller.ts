@@ -3,6 +3,7 @@ import { PollsService } from './polls.service';
 import { CreatePollDto } from './dto/create-poll.dto';
 import { UpdatePollDto } from './dto/update-poll.dto';
 import { VoteDto } from './dto/vote.dto';
+import { UpdateAllowedUsersDto } from './dto/update-allowed-users.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -67,7 +68,7 @@ export class PollsController {
   @Roles(Role.ADMIN)
   updateAllowedUsers(
     @Param('id') id: string,
-    @Body() body: { allowedUsers: string[] },
+    @Body() body: UpdateAllowedUsersDto,
     @CurrentUser() user: any
   ) {
     return this.pollsService.updateAllowedUsers(id, body.allowedUsers, user.userId);

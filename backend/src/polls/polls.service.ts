@@ -18,10 +18,21 @@ export class PollsService {
   ) {}
 
   async create(createPollDto: CreatePollDto, userId: string): Promise<Poll> {
+    const trimmedOptions = createPollDto.options.map(opt => opt.trim()).filter(opt => opt.length > 0);
+
+    if (trimmedOptions.length < 2) {
+      throw new BadRequestException('Poll must have at least 2 non-empty options');
+    }
+
+    const uniqueOptions = [...new Set(trimmedOptions)];
+    if (uniqueOptions.length !== trimmedOptions.length) {
+      throw new BadRequestException('Poll options must be unique');
+    }
+
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + createPollDto.durationMinutes);
 
-    const options = createPollDto.options.map((text) => ({
+    const options = uniqueOptions.map((text) => ({
       text,
       votes: 0,
       votedBy: [],
@@ -171,15 +182,9 @@ export class PollsService {
     poll.options[voteDto.optionIndex].votes += 1;
     poll.options[voteDto.optionIndex].votedBy.push(userObjectId);
 
-    try {
-      const savedPoll = await poll.save();
-      console.log('Poll saved successfully:', savedPoll);
-      this.pollsGateway.emitPollUpdated(savedPoll);
-      return savedPoll;
-    } catch (error) {
-      console.error('Error saving poll:', error);
-      throw new BadRequestException('Failed to save poll');
-    }
+    const savedPoll = await poll.save();
+    this.pollsGateway.emitPollUpdated(savedPoll);
+    return savedPoll;
   }
 
   async getResults(id: string, userId: string): Promise<any> {
@@ -226,6 +231,18 @@ export class PollsService {
     const user = await this.userModel.findById(userId).exec();
     if (!user || user.role !== Role.ADMIN) {
       throw new ForbiddenException('Only admins can update polls');
+    }
+
+    if (poll.isPublic) {
+      throw new BadRequestException('Cannot set allowed users for public polls');
+    }
+
+    const uniqueUserIds = [...new Set(allowedUserIds)];
+    for (const uid of uniqueUserIds) {
+      const userExists = await this.userModel.findById(uid).exec();
+      if (!userExists) {
+        throw new BadRequestException(`User with ID ${uid} does not exist`);
+      }
     }
 
     const previousAllowedUsers = poll.allowedUsers.map((uid) => uid.toString());

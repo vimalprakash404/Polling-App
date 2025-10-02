@@ -1,7 +1,7 @@
-import { IsNumber, Min } from 'class-validator';
+import { IsNumber, Min, IsInt } from 'class-validator';
 
 export class VoteDto {
-  @IsNumber()
+  @IsInt()
   @Min(0)
   optionIndex: number;
 }
