@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { pollsApi, type Poll } from '../api/polls';
 import PollCard from '../components/PollCard';
 import { connectSocket, disconnectSocket } from '../services/socket';
+import { useAuth } from '../context/AuthContext';
 
 export default function UserPolls() {
+  const { user } = useAuth();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export default function UserPolls() {
   useEffect(() => {
     fetchPolls();
 
-    const socket = connectSocket();
+    const socket = connectSocket(user?.id);
 
     socket.on('pollCreated', (poll: Poll) => {
       console.log('New poll created:', poll);
@@ -49,7 +51,7 @@ export default function UserPolls() {
     return () => {
       disconnectSocket();
     };
-  }, []);
+  }, [user?.id]);
 
   const filteredPolls = polls.filter((poll) => {
     if (filter === 'active') return poll.isActive;

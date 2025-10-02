@@ -5,8 +5,10 @@ import EditPollModal from '../components/EditPollModal';
 import ManageAllowedUsersModal from '../components/ManageAllowedUsersModal';
 import PollCard from '../components/PollCard';
 import { connectSocket, disconnectSocket } from '../services/socket';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,7 +32,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchPolls();
 
-    const socket = connectSocket();
+    const socket = connectSocket(user?.id);
 
     socket.on('pollCreated', (poll: Poll) => {
       console.log('New poll created:', poll);
@@ -54,7 +56,7 @@ export default function AdminDashboard() {
     return () => {
       disconnectSocket();
     };
-  }, []);
+  }, [user?.id]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this poll?')) return;

@@ -4,7 +4,7 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 let socket: Socket | null = null;
 
-export const connectSocket = () => {
+export const connectSocket = (userId?: string) => {
   if (!socket) {
     socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
@@ -15,6 +15,9 @@ export const connectSocket = () => {
 
     socket.on('connect', () => {
       console.log('Socket connected:', socket?.id);
+      if (userId) {
+        socket?.emit('authenticate', { userId });
+      }
     });
 
     socket.on('disconnect', () => {
@@ -24,6 +27,8 @@ export const connectSocket = () => {
     socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
     });
+  } else if (userId) {
+    socket.emit('authenticate', { userId });
   }
 
   return socket;

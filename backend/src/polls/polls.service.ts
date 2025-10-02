@@ -115,7 +115,7 @@ export class PollsService {
     }
 
     await this.pollModel.findByIdAndDelete(id).exec();
-    this.pollsGateway.emitPollDeleted(id);
+    this.pollsGateway.emitPollDeleted(id, poll);
   }
 
   async vote(id: string, voteDto: VoteDto, userId: string): Promise<Poll> {
