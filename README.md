@@ -221,24 +221,7 @@ npm run build
 npm run start:prod
 ```
 
-The application will be available at `http://localhost:3000`
 
-## Testing
-
-### Backend Tests
-
-```bash
-cd backend
-
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Test coverage
-npm run test:cov
-```
 
 ## API Endpoints
 
