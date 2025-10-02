@@ -183,30 +183,15 @@ npm run test:cov
 ### WebSocket Events
 - `pollUpdated` - Emitted when poll results change
 
-## Default Users
-
-The system seeds with default users on first run:
-
-**Admin User**
-- Email: `admin@example.com`
-- Password: `admin123`
-- Role: Admin
-
-**Regular Users**
-- Email: `user1@example.com` / `user2@example.com` / `user3@example.com`
-- Password: `user123`
-- Role: User
 
 ## AI-Assisted Development
 
 This project was developed with assistance from **GitHub Copilot**, which was used to:
 
 - Generate boilerplate code and reduce repetitive typing
-- Suggest implementation patterns for authentication and authorization
 - Provide TypeScript type definitions and interfaces
 - Auto-complete API endpoint handlers and service methods
 - Suggest React component structures and hooks usage
-- Generate test cases and mock data
 - Optimize code with best practices and modern JavaScript/TypeScript features
 
 GitHub Copilot significantly improved development speed by providing intelligent code suggestions, reducing syntax errors, and offering real-time best practice recommendations. The AI assistant helped maintain consistent code style across the project and suggested efficient algorithms for data handling and state management.
@@ -231,19 +216,3 @@ GitHub Copilot significantly improved development speed by providing intelligent
 - Role-based access control (RBAC)
 - Protected routes on frontend
 - Route guards on backend
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For questions and support, please open an issue in the GitHub repository.

@@ -408,7 +408,3 @@ Build and run:
 docker build -t polling-backend .
 docker run -p 3000:3000 --env-file .env polling-backend
 ```
-
-## License
-
-MIT
