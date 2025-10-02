@@ -6,11 +6,14 @@ import { CreatePollDto } from './dto/create-poll.dto';
 import { UpdatePollDto } from './dto/update-poll.dto';
 import { VoteDto } from './dto/vote.dto';
 import { PollsGateway } from './polls.gateway';
+import { User } from '../users/schemas/user.schema';
+import { Role } from '../common/enums/role.enum';
 
 @Injectable()
 export class PollsService {
   constructor(
     @InjectModel(Poll.name) private pollModel: Model<Poll>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private pollsGateway: PollsGateway,
   ) {}
 
@@ -89,8 +92,9 @@ export class PollsService {
       throw new NotFoundException('Poll not found');
     }
 
-    if (!poll.createdBy.equals(new Types.ObjectId(userId))) {
-      throw new ForbiddenException('You can only update your own polls');
+    const user = await this.userModel.findById(userId).exec();
+    if (!user || user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can update polls');
     }
 
     if (!poll.isActive) {
@@ -110,8 +114,9 @@ export class PollsService {
       throw new NotFoundException('Poll not found');
     }
 
-    if (!poll.createdBy.equals(new Types.ObjectId(userId))) {
-      throw new ForbiddenException('You can only delete your own polls');
+    const user = await this.userModel.findById(userId).exec();
+    if (!user || user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can delete polls');
     }
 
     await this.pollModel.findByIdAndDelete(id).exec();
@@ -206,8 +211,9 @@ export class PollsService {
       throw new NotFoundException('Poll not found');
     }
 
-    if (!poll.createdBy.equals(new Types.ObjectId(userId))) {
-      throw new ForbiddenException('You can only update your own polls');
+    const user = await this.userModel.findById(userId).exec();
+    if (!user || user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can update polls');
     }
 
     poll.allowedUsers = allowedUserIds.map((uid) => new Types.ObjectId(uid));
