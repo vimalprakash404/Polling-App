@@ -19,7 +19,7 @@ export default function PollResults({ pollId }: PollResultsProps) {
         setResults(data);
         setError('');
       } catch (err: any) {
-        const errorMsg = err.response?.data?.message || 'Failed to fetch results';
+        const errorMsg = err.response?.data?.message.message || 'Failed to fetch results';
         setError(errorMsg);
         toast.error(errorMsg);
       } finally {
