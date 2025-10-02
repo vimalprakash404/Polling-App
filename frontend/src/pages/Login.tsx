@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -8,14 +8,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user && !error) {
-      navigate('/');
-    }
-  }, [user, navigate, error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +19,7 @@ export default function Login() {
     try {
       await login({ email, password });
       toast.success('Login successful!');
-      setLoading(false);
+      navigate('/'); // ✅ redirect only on success
     } catch (err: any) {
       let errorMsg = 'Login failed. Please check your credentials.';
 
@@ -42,6 +36,7 @@ export default function Login() {
 
       setError(errorMsg);
       toast.error(errorMsg);
+    } finally {
       setLoading(false);
     }
   };

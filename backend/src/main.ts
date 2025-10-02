@@ -25,16 +25,10 @@ async function bootstrap() {
 
   app.useStaticAssets(frontendPath);
 
-  app.use('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (!req.originalUrl.startsWith('/auth') &&
-        !req.originalUrl.startsWith('/users') &&
-        !req.originalUrl.startsWith('/polls') &&
-        !req.originalUrl.startsWith('/socket.io')) {
-      res.sendFile(join(frontendPath, 'index.html'));
-    } else {
-      next();
-    }
-  });
+  app.use(/^(?!\/(auth|users|polls|socket\.io)).*/, (req, res) => {
+  res.sendFile(join(frontendPath, 'index.html'));
+});
+
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
