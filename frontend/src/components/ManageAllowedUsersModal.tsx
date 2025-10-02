@@ -45,6 +45,12 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (selectedUsers.length === 0 && !poll.isPublic) {
+      setError('Please select at least one user for private polls');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -54,7 +60,19 @@ export default function ManageAllowedUsersModal({ poll, onClose, onSuccess }: Ma
       toast.success('Allowed users updated successfully!');
       onSuccess();
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Failed to update allowed users';
+      let errorMsg = 'Failed to update allowed users';
+
+      if (err.response?.data) {
+        const responseData = err.response.data;
+        if (typeof responseData.message === 'string') {
+          errorMsg = responseData.message;
+        } else if (responseData.message?.message) {
+          errorMsg = responseData.message.message;
+        } else if (Array.isArray(responseData.message)) {
+          errorMsg = responseData.message.join(', ');
+        }
+      }
+
       toast.error(errorMsg);
       setError(errorMsg);
     } finally {

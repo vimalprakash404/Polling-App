@@ -28,7 +28,19 @@ export default function Register() {
       await register({ username, email, password, role });
       toast.success('Registration successful!');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Registration failed. Please try again.';
+      let errorMsg = 'Registration failed. Please try again.';
+
+      if (err.response?.data) {
+        const responseData = err.response.data;
+        if (typeof responseData.message === 'string') {
+          errorMsg = responseData.message;
+        } else if (responseData.message?.message) {
+          errorMsg = responseData.message.message;
+        } else if (Array.isArray(responseData.message)) {
+          errorMsg = responseData.message.join(', ');
+        }
+      }
+
       setError(errorMsg);
       toast.error(errorMsg);
       setLoading(false);

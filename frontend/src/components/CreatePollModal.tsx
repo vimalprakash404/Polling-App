@@ -66,8 +66,19 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
       return;
     }
 
+    const uniqueOptions = [...new Set(validOptions)];
+    if (uniqueOptions.length !== validOptions.length) {
+      setError('All poll options must be unique');
+      return;
+    }
+
     if (durationMinutes < 1 || durationMinutes > 120) {
       setError('Duration must be between 1 and 120 minutes');
+      return;
+    }
+
+    if (!isPublic && selectedUsers.length === 0) {
+      setError('Please select at least one user for private polls, or make the poll public');
       return;
     }
 
@@ -85,7 +96,19 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
       toast.success('Poll created successfully!');
       onSuccess();
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Failed to create poll';
+      let errorMsg = 'Failed to create poll';
+
+      if (err.response?.data) {
+        const responseData = err.response.data;
+        if (typeof responseData.message === 'string') {
+          errorMsg = responseData.message;
+        } else if (responseData.message?.message) {
+          errorMsg = responseData.message.message;
+        } else if (Array.isArray(responseData.message)) {
+          errorMsg = responseData.message.join(', ');
+        }
+      }
+
       toast.error(errorMsg);
       setError(errorMsg);
     } finally {
@@ -121,7 +144,7 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-sm font-medium mb-1">
-              Title *
+              Title * ({title.length}/200)
             </label>
             <input
               type="text"
@@ -129,6 +152,7 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              maxLength={200}
               placeholder="Enter poll title"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -136,7 +160,7 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
 
           <div className="mb-4">
             <label htmlFor="description" className="block text-sm font-medium mb-1">
-              Description
+              Description ({description.length}/1000)
             </label>
             <textarea
               id="description"
@@ -144,12 +168,13 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter poll description (optional)"
               rows={3}
+              maxLength={1000}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Options *</label>
+            <label className="block text-sm font-medium mb-1">Options * (2-10 options)</label>
             {options.map((option, index) => (
               <div key={index} className="flex items-center mb-2">
                 <input
@@ -171,13 +196,15 @@ export default function CreatePollModal({ onClose, onSuccess }: CreatePollModalP
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              className="mt-2 text-blue-500 hover:text-blue-700"
-              onClick={handleAddOption}
-            >
-              Add Option
-            </button>
+            {options.length < 10 && (
+              <button
+                type="button"
+                className="mt-2 text-blue-500 hover:text-blue-700"
+                onClick={handleAddOption}
+              >
+                Add Option
+              </button>
+            )}
           </div>
 
           <div className="mb-4">

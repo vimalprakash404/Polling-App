@@ -17,6 +17,22 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (title.trim().length === 0) {
+      setError('Title cannot be empty');
+      return;
+    }
+
+    if (title.length > 200) {
+      setError('Title must be 200 characters or less');
+      return;
+    }
+
+    if (description.length > 1000) {
+      setError('Description must be 1000 characters or less');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,7 +43,19 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
       toast.success('Poll updated successfully!');
       onSuccess();
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Failed to update poll';
+      let errorMsg = 'Failed to update poll';
+
+      if (err.response?.data) {
+        const responseData = err.response.data;
+        if (typeof responseData.message === 'string') {
+          errorMsg = responseData.message;
+        } else if (responseData.message?.message) {
+          errorMsg = responseData.message.message;
+        } else if (Array.isArray(responseData.message)) {
+          errorMsg = responseData.message.join(', ');
+        }
+      }
+
       toast.error(errorMsg);
       setError(errorMsg);
     } finally {
@@ -67,7 +95,7 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-sm font-medium mb-1">
-              Title
+              Title ({title.length}/200)
             </label>
             <input
               type="text"
@@ -75,6 +103,7 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              maxLength={200}
               placeholder="Enter poll title"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -82,7 +111,7 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
 
           <div className="mb-4">
             <label htmlFor="description" className="block text-sm font-medium mb-1">
-              Description
+              Description ({description.length}/1000)
             </label>
             <textarea
               id="description"
@@ -90,6 +119,7 @@ export default function EditPollModal({ poll, onClose, onSuccess }: EditPollModa
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter poll description (optional)"
               rows={3}
+              maxLength={1000}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
