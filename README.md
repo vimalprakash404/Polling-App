@@ -98,86 +98,6 @@ npm run dev
 
 The frontend development server will start on `http://localhost:5173`
 
-## Deployment
-
-### Deploying on Render
-
-#### Prerequisites
-1. MongoDB Atlas account (free tier available at mongodb.com/cloud/atlas)
-2. Render account (free tier available at render.com)
-3. GitHub repository with your code
-
-#### Step 1: Setup MongoDB Atlas
-
-1. Create a MongoDB Atlas cluster
-2. Create a database user with password
-3. Whitelist all IPs (0.0.0.0/0) for Render access
-4. Get your connection string (format: `mongodb+srv://username:password@cluster.mongodb.net/dbname`)
-
-#### Step 2: Deploy Backend on Render
-
-1. Push your code to GitHub
-2. Log in to Render Dashboard
-3. Click "New +" and select "Web Service"
-4. Connect your GitHub repository
-5. Configure the service:
-   - **Name**: polling-system-backend
-   - **Region**: Choose closest to your users
-   - **Branch**: main (or your default branch)
-   - **Root Directory**: backend
-   - **Environment**: Node
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm run start:prod`
-   - **Instance Type**: Free (or paid for better performance)
-
-6. Add Environment Variables:
-   - `MONGODB_URI`: Your MongoDB Atlas connection string
-   - `JWT_SECRET`: A secure random string (generate with `openssl rand -base64 32`)
-   - `PORT`: 3000
-   - `NODE_ENV`: production
-
-7. Click "Create Web Service"
-8. Wait for deployment to complete
-9. Copy your backend URL (e.g., `https://polling-system-backend.onrender.com`)
-
-#### Step 3: Deploy Frontend on Render
-
-1. In Render Dashboard, click "New +" and select "Static Site"
-2. Connect the same GitHub repository
-3. Configure the static site:
-   - **Name**: polling-system-frontend
-   - **Branch**: main
-   - **Root Directory**: frontend
-   - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: dist
-
-4. Add Environment Variable:
-   - `VITE_API_URL`: Your backend URL from Step 2
-
-5. Click "Create Static Site"
-6. Wait for deployment to complete
-
-#### Alternative: Full Stack Deployment (Single Service)
-
-Deploy backend and frontend together as one service:
-
-1. In Render Dashboard, click "New +" and select "Web Service"
-2. Connect your GitHub repository
-3. Configure:
-   - **Name**: polling-system
-   - **Root Directory**: . (root)
-   - **Build Command**: `cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build`
-   - **Start Command**: `cd backend && npm run start:prod`
-
-4. Add Environment Variables:
-   - `MONGODB_URI`: Your MongoDB Atlas connection string
-   - `JWT_SECRET`: Your secure secret key
-   - `PORT`: 10000
-   - `NODE_ENV`: production
-
-5. The backend serves the frontend automatically from the built files
-
-
 
 ### Local Deployment
 
@@ -204,22 +124,7 @@ npm run build
 
 2. The built files will be in the `frontend/dist` directory
 
-#### Full Stack Local Deployment
 
-The backend is configured to serve the frontend static files. After building both:
-
-1. Build frontend:
-```bash
-cd frontend
-npm run build
-```
-
-2. Build and start backend:
-```bash
-cd backend
-npm run build
-npm run start:prod
-```
 
 
 
